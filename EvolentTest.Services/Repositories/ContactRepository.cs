@@ -44,7 +44,7 @@ namespace EvolentTest.Services
             return contactModel;
         }
 
-        public List<ContactModel> GetAllContacts(int page = 1, int pageSize = 10)
+        public List<ContactModel> GetAllContacts(int page, int pageSize)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace EvolentTest.Services
                                         con => con.Id,
                                         user => user.Id,
                                         (con, user) => new { CON = con, USER = user })
-                                  .Where(x => x.CON.Equals(ContactConstant.ActiveStatus))
+                                  .Where(x => x.CON.Status.Equals(ContactConstant.ActiveStatus))
                                   .OrderByDescending(x => x.CON.UpdatedAt)
                                   .Select(x => new ContactModel()
                                   {
@@ -84,6 +84,16 @@ namespace EvolentTest.Services
             }
 
             contactModel.UserId = contact.Id;
+
+            if (await IsEmailExist(contactModel.UserId, contactModel.Email))
+            {
+                throw new Exception(MessageConstant.EMAIL_ALREADY_EXIST);
+            }
+
+            if (await IsPhoneNumberExist(contactModel.UserId, contactModel.PhoneNumber))
+            {
+                throw new Exception(MessageConstant.PHONE_ALREADY_EXIST);
+            }
 
             await UpdateApplicationUser(contactModel);
 
@@ -118,14 +128,14 @@ namespace EvolentTest.Services
             return await _context.Contact.FindAsync(contactId);
         }
 
-        public async Task<bool> IsEmailExist(string email)
+        public async Task<bool> IsEmailExist(string userId, string email)
         {
-            return await _context.User.AnyAsync(x => x.Email.Equals(email));
+            return await _context.User.AnyAsync(x => x.Email.Equals(email) && x.Id != userId);
         }
 
-        public async Task<bool> IsPhoneNumberExist(string phoneNumber)
+        public async Task<bool> IsPhoneNumberExist(string userId, string phoneNumber)
         {
-            return await _context.User.AnyAsync(x => x.PhoneNumber.Equals(phoneNumber));
+            return await _context.User.AnyAsync(x => x.PhoneNumber.Equals(phoneNumber) && x.Id != userId);
         }
 
 

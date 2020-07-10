@@ -25,8 +25,11 @@ namespace EvolentTest.Services
             return await _contactRepository.AddContact(contactModel);
         }
 
-        public List<ContactModel> GetAllContacts(int page = 1, int pageSize = 10)
+        public List<ContactModel> GetAllContacts(int page, int pageSize)
         {
+            if (page == 0) page = 1;
+            if (pageSize == 0) pageSize = 10;
+
             return _contactRepository.GetAllContacts(page, pageSize);
         }
 
@@ -40,14 +43,14 @@ namespace EvolentTest.Services
             return await _contactRepository.DeleteContact(contactId);
         }
 
-        public async Task<bool> IsEmailExist(string email)
+        public async Task<bool> IsEmailExist(string userId, string email)
         {
-            return await _contactRepository.IsEmailExist(email);
+            return await _contactRepository.IsEmailExist(userId, email);
         }
 
-        public async Task<bool> IsPhoneNumberExist(string phoneNumber)
+        public async Task<bool> IsPhoneNumberExist(string userId, string phoneNumber)
         {
-            return await _contactRepository.IsPhoneNumberExist(phoneNumber);
+            return await _contactRepository.IsPhoneNumberExist(userId, phoneNumber);
         }
     }
 }

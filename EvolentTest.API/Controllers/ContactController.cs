@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using EvolentTest.Common;
@@ -48,7 +49,7 @@ namespace EvolentTest.API.Controllers
                 }
 
                 //Check Email
-                if (await _contactService.IsEmailExist(contactModel.Email))
+                if (await _contactService.IsEmailExist("", contactModel.Email))
                 {
                     result.Success = false;
                     result.Errors = new List<string>() { MessageConstant.EMAIL_ALREADY_EXIST };
@@ -64,7 +65,7 @@ namespace EvolentTest.API.Controllers
                 }
 
                 //Check Phone Number
-                if (await _contactService.IsPhoneNumberExist(contactModel.PhoneNumber))
+                if (await _contactService.IsPhoneNumberExist("", contactModel.PhoneNumber))
                 {
                     result.Success = false;
                     result.Errors = new List<string>() { MessageConstant.PHONE_ALREADY_EXIST };
@@ -101,6 +102,13 @@ namespace EvolentTest.API.Controllers
 
             try
             {
+                if (page == 0 || pageSize == 0)
+                {
+                    result.Success = false;
+                    result.Errors = new List<string>() { MessageConstant.REQUEST_IS_NULL };
+                    return StatusCode(StatusCodes.Status400BadRequest, result);
+                }
+
                 var userList = _contactService.GetAllContacts(page, pageSize);
 
                 result = new BaseResponse()
@@ -146,27 +154,11 @@ namespace EvolentTest.API.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest, result);
                 }
 
-                //Check Email
-                if (await _contactService.IsEmailExist(contactModel.Email))
-                {
-                    result.Success = false;
-                    result.Errors = new List<string>() { MessageConstant.EMAIL_ALREADY_EXIST };
-                    return StatusCode(StatusCodes.Status400BadRequest, result);
-                }
-
                 //Validate Phone Number
                 if (!Regex.IsMatch(contactModel.PhoneNumber, @"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$", RegexOptions.IgnoreCase))
                 {
                     result.Success = false;
                     result.Errors = new List<string>() { MessageConstant.PHONE_IS_NOT_VALID };
-                    return StatusCode(StatusCodes.Status400BadRequest, result);
-                }
-
-                //Check Phone Number
-                if (await _contactService.IsPhoneNumberExist(contactModel.PhoneNumber))
-                {
-                    result.Success = false;
-                    result.Errors = new List<string>() { MessageConstant.PHONE_ALREADY_EXIST };
                     return StatusCode(StatusCodes.Status400BadRequest, result);
                 }
 

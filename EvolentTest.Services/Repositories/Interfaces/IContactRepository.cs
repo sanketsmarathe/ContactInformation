@@ -10,10 +10,10 @@ namespace EvolentTest.Services
     {
         Task<ContactModel> AddContact(ContactModel contact);
         Task<ContactModel> UpdateContact(ContactModel contactModel);
-        List<ContactModel> GetAllContacts(int page = 1, int pageSize = 10);
+        List<ContactModel> GetAllContacts(int page , int pageSize);
         Task<Contact> DeleteContact(Guid contactId);
         Task<Contact> GetContactByContactId(Guid contactId);
-        Task<bool> IsEmailExist(string email);
-        Task<bool> IsPhoneNumberExist(string phoneNumber);
+        Task<bool> IsEmailExist(string userId, string email);
+        Task<bool> IsPhoneNumberExist(string userId, string phoneNumber);
     }
 }
